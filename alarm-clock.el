@@ -7,7 +7,7 @@
 ;; Version: 2018.11.09
 ;; Package-Version: 20181109
 ;; Package-Requires: ((emacs "24.3"))
-;; URL: https://github.com/wlemuel/alarm-clock.el
+;; URL: https://github.com/wlemuel/alarm-clock
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
