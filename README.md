@@ -18,11 +18,11 @@ An alarm clock for Emacs
 
 ##### `alarm-clock-set`
 
-Set an alarm clock with the time following tips.
-TIME can be "6"(6 seconds), "11 minutes", "10 hours", "11:40pm", etc.
+Set an alarm clock with the time following tips.  
+TIME can be "6"(6 seconds), "11 minutes", "10 hours", "11:40pm", etc.  
 MESSAGE will be shown when notifying at setting time.
 
 ##### `alarm-clock-list-view`
 
-Display the alarm clock list.
+Display the alarm clock list.  
 Use `a` to set a new alarm clock, `C-k` to delete current alarm clock.
