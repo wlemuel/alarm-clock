@@ -137,10 +137,24 @@ and 'mpg123' in linux"
                (file-exists-p sound))
         (start-process title nil program sound))))
 
+(defun alarm-clock--system-notify (title message)
+  "Notify with formatted TITLE and MESSAGE by the system notification feature."
+  (let ((program (cond ((eq system-type 'darwin) "terminal-notifier")
+                       ((eq system-type 'gnu/linux) "notify-send")
+                       (t "")))
+        (args (cond ((eq system-type 'darwin) (list "-title" title
+                                                    "-sender" "org.gnu.Emacs"
+                                                    "-message" message
+                                                    "-ignoreDnD"))
+                    ((eq system-type 'gnu/linux) (list title message)))))
+    (when (executable-find program)
+      (apply 'start-process (append (list title nil program) args)))))
+
 (defun alarm-clock--notify (title message)
   "Notify in status bar with formatted TITLE and MESSAGE."
   (when alarm-clock-play-sound
       (alarm-clock--ding))
+  (alarm-clock--system-notify title message)
   (message (format "[%s] - %s" title message)))
 
 
