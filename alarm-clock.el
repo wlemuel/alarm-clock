@@ -4,8 +4,8 @@
 
 ;; Author: Steve Lemuel <wlemuel@hotmail.com>
 ;; Keywords: calendar, tools, convenience
-;; Version: 2018.11.09
-;; Package-Version: 20181109
+;; Version: 2018.11.10
+;; Package-Version: 20181110.1
 ;; Package-Requires: ((emacs "24.3"))
 ;; URL: https://github.com/wlemuel/alarm-clock
 
@@ -119,7 +119,7 @@ MESSAGE will be shown when notifying in the status bar."
 (defun alarm-clock--cleanup ()
   "Remove expired records."
   (dolist (alarm alarm-clock--alist)
-    (if (time-less-p (plist-get alarm :time) (current-time))
+    (when (time-less-p (plist-get alarm :time) (current-time))
         (setq alarm-clock--alist (delq alarm alarm-clock--alist)))))
 
 (defun alarm-clock--ding ()
@@ -129,14 +129,14 @@ and 'mpg123' in linux"
   (let ((title "Alarm Clock")
         (program (cond ((eq system-type 'darwin) "afplay")
                        ((eq system-type 'gnu/linux) "mpg123"))))
-    (if (and program (file-exists-p (expand-file-name alarm-clock-sound-file)))
+    (when (and program (file-exists-p (expand-file-name alarm-clock-sound-file)))
         (start-process title nil program alarm-clock-sound-file))))
 
 (defun alarm-clock--notify (title message)
   "Notify in status bar with formatted TITLE and MESSAGE."
-  (if alarm-clock-play-sound
+  (when alarm-clock-play-sound
       (alarm-clock--ding))
-  (message (format "Alarm: [%s] - %s" title message)))
+  (message (format "[%s] - %s" title message)))
 
 
 (provide 'alarm-clock)
