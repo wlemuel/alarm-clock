@@ -131,10 +131,11 @@ and 'mpg123' in linux"
   (let ((title "Alarm Clock")
         (program (cond ((eq system-type 'darwin) "afplay")
                        ((eq system-type 'gnu/linux) "mpg123")
-                       (t ""))))
+                       (t "")))
+        (sound (expand-file-name alarm-clock-sound-file)))
     (when (and (executable-find program)
-               (file-exists-p (expand-file-name alarm-clock-sound-file)))
-        (start-process title nil program alarm-clock-sound-file))))
+               (file-exists-p sound))
+        (start-process title nil program sound))))
 
 (defun alarm-clock--notify (title message)
   "Notify in status bar with formatted TITLE and MESSAGE."
