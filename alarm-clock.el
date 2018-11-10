@@ -5,8 +5,8 @@
 ;; Author: Steve Lemuel <wlemuel@hotmail.com>
 ;; Keywords: calendar, tools, convenience
 ;; Version: 2018.11.10
-;; Package-Version: 20181110.1
-;; Package-Requires: ((emacs "24.3"))
+;; Package-Version: 20181110.2
+;; Package-Requires: ((emacs "24.4"))
 ;; URL: https://github.com/wlemuel/alarm-clock
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -66,7 +66,9 @@
   "Set an alarm clock at time TIME.
 MESSAGE will be shown when notifying in the status bar."
   (interactive "sAlarm at (e.g: 2 minutes, 60 seconds, 3 days): \nsMessage: ")
-  (let* ((timer (run-at-time
+  (let* ((time (string-trim time))
+         (message (string-trim message))
+         (timer (run-at-time
                  time
                  nil
                  (lambda (message) (alarm-clock--notify "Alarm Clock" message))
@@ -128,8 +130,10 @@ In osx operating system, 'afplay' will be used to play sound,
 and 'mpg123' in linux"
   (let ((title "Alarm Clock")
         (program (cond ((eq system-type 'darwin) "afplay")
-                       ((eq system-type 'gnu/linux) "mpg123"))))
-    (when (and program (file-exists-p (expand-file-name alarm-clock-sound-file)))
+                       ((eq system-type 'gnu/linux) "mpg123")
+                       (t ""))))
+    (when (and (executable-find program)
+               (file-exists-p (expand-file-name alarm-clock-sound-file)))
         (start-process title nil program alarm-clock-sound-file))))
 
 (defun alarm-clock--notify (title message)
