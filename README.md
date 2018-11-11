@@ -1,21 +1,25 @@
 # alarm-clock
+
+[![MELPA](https://melpa.org/packages/alarm-clock-badge.svg)](https://melpa.org/#/alarm-clock)
+[![License](http://img.shields.io/:license-gpl3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
+
 An alarm clock for Emacs
 
 ## Requirements
-* Emacs 24 or higher
-* [mpg123](http://mpg123.org) (gnu/linux)
+
+- Emacs 24 or higher
+- [mpg123](http://mpg123.org) (gnu/linux)
 
 ## Get started
 
-* Via [MELPA](https://melpa.org).
+- Via [MELPA](https://melpa.org).
 
-* Get alarm-clock
-   * Manually download alarm-clock and set-up your load path.
-   
-* To auto-start alarm-clock every time you open Emacs add these lines to your .emacs file:
+- Get alarm-clock
+  - Manually download alarm-clock and set-up your load path.
+- To auto-start alarm-clock every time you open Emacs add these lines to your .emacs file:
 
         (require 'alarm-clock) ; Not needed if you use package.el
-        
+
 ## Basic Usage
 
 ##### `alarm-clock-set`
@@ -31,16 +35,18 @@ Use `a` to set a new alarm clock, `C-k` to delete current alarm clock.
 
 ## Q & A
 
-* Meet `(wrong-type-argument package-desc nil)` on Mac OSX.
+- Meet `(wrong-type-argument package-desc nil)` on Mac OSX.
 
-   - Install `gnu-tar`.  
-   > brew install gnu-tar
+  - Install `gnu-tar`.
 
-   - Try to set `quelpa-build-tar-executable` to the path of `gtar`, (e.g "/usr/local/bin/gtar").
-   - Then reinstall this package.
-   
+    > brew install gnu-tar
+
+  - Try to set `quelpa-build-tar-executable` to the path of `gtar`, (e.g "/usr/local/bin/gtar").
+  - Then reinstall this package.
+
 ## Appendix
+
 I'd be glad to receive patches,
 comments and your considered criticism.
 
-*Have fun with alarm-clock!*
+_Have fun with alarm-clock!_
