@@ -7,10 +7,12 @@ An alarm clock for Emacs
 
 ## Get started
 
+* Via [MELPA](https://melpa.org).
+
 * Get alarm-clock
    * Manually download alarm-clock and set-up your load path.
    
-* To auto-start alarm-clock every time you open Emacs and these lines to your .emacs file:
+* To auto-start alarm-clock every time you open Emacs add these lines to your .emacs file:
 
         (require 'alarm-clock) ; Not needed if you use package.el
         
@@ -26,3 +28,19 @@ MESSAGE will be shown when notifying at setting time.
 
 Display the alarm clock list.  
 Use `a` to set a new alarm clock, `C-k` to delete current alarm clock.
+
+## Q & A
+
+* Meet `(wrong-type-argument package-desc nil)` on Mac OSX.
+
+   - Install `gnu-tar`.  
+   > brew install gnu-tar
+
+   - Try to set `quelpa-build-tar-executable` to the path of `gtar`, (e.g "/usr/local/bin/gtar").
+   - Then reinstall this package.
+   
+## Appendix
+I'd be glad to receive patches,
+comments and your considered criticism.
+
+*Have fun with alarm-clock!*
