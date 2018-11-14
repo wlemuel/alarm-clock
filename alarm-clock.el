@@ -151,7 +151,7 @@ and 'mpg123' in linux"
                                                     "-sender" "org.gnu.Emacs"
                                                     "-message" message
                                                     "-ignoreDnD"))
-                    ((eq system-type 'gnu/linux) (list "-u" "critical" title (concat message))))))
+                    ((eq system-type 'gnu/linux) (list title message)))))
     (when (executable-find program)
       (apply 'start-process (append (list title nil program) args)))))
 
