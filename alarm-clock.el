@@ -4,8 +4,8 @@
 
 ;; Author: Steve Lemuel <wlemuel@hotmail.com>
 ;; Keywords: calendar, tools, convenience
-;; Version: 2018.11.14
-;; Package-Version: 20181114.1
+;; Version: 2018.11.15
+;; Package-Version: 20181115.1
 ;; Package-Requires: ((emacs "24.4"))
 ;; URL: https://github.com/wlemuel/alarm-clock
 
@@ -151,7 +151,7 @@ and 'mpg123' in linux"
                                                     "-sender" "org.gnu.Emacs"
                                                     "-message" message
                                                     "-ignoreDnD"))
-                    ((eq system-type 'gnu/linux) (list title message)))))
+                    ((eq system-type 'gnu/linux) (list "-u" "critical" title message)))))
     (when (executable-find program)
       (apply 'start-process (append (list title nil program) args)))))
 
