@@ -4,8 +4,8 @@
 
 ;; Author: Steve Lemuel <wlemuel@hotmail.com>
 ;; Keywords: calendar, tools, convenience
-;; Version: 2018.11.11
-;; Package-Version: 20181111.1
+;; Version: 2018.11.14
+;; Package-Version: 20181114.1
 ;; Package-Requires: ((emacs "24.4"))
 ;; URL: https://github.com/wlemuel/alarm-clock
 
@@ -45,6 +45,11 @@
 
 (defcustom alarm-clock-play-sound t
   "Whether to play sound when notifying, only avaiable for osx and linux."
+  :type 'boolean
+  :group 'alarm-clock)
+
+(defcustom alarm-clock-system-notify t
+  "Whether to notify via system based notification feature."
   :type 'boolean
   :group 'alarm-clock)
 
@@ -154,7 +159,8 @@ and 'mpg123' in linux"
   "Notify in status bar with formatted TITLE and MESSAGE."
   (when alarm-clock-play-sound
       (alarm-clock--ding))
-  (alarm-clock--system-notify title message)
+  (when alarm-clock-system-notify
+    (alarm-clock--system-notify title message))
   (message (format "[%s] - %s" title message)))
 
 
