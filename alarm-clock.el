@@ -4,9 +4,9 @@
 
 ;; Author: Steve Lemuel <wlemuel@hotmail.com>
 ;; Keywords: calendar, tools, convenience
-;; Version: 2018.11.15
-;; Package-Version: 20181115.1
-;; Package-Requires: ((emacs "24.4"))
+;; Version: 2018.11.21
+;; Package-Version: 20181121.1
+;; Package-Requires: ((emacs "24.4") (f "0.17.0"))
 ;; URL: https://github.com/wlemuel/alarm-clock
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -33,12 +33,15 @@
 
 ;;; Code:
 
+(require 'f)
+
 (defgroup alarm-clock nil
   "An alarm clock management."
   :group 'applications
   :prefix "alarm-clock-")
 
-(defcustom alarm-clock-sound-file "alarm.mp3"
+(defcustom alarm-clock-sound-file
+  (f-join (f-dirname (f-this-file)) "alarm.mp3")
   "File to play the alarm sound."
   :type 'file
   :group 'alarm-clock)
@@ -93,9 +96,9 @@ MESSAGE will be shown when notifying in the status bar."
 
 (defun alarm-clock--list-prepare ()
   "Prefare the list buffer."
+  (alarm-clock--cleanup)
   (unless alarm-clock--alist
     (user-error "No alarm clocks are set"))
-  (alarm-clock--cleanup)
   (set-buffer (get-buffer-create "*alarm clock*"))
   (alarm-clock-mode)
   (let* ((format (format "%%-%ds %%s" 25))
@@ -116,18 +119,18 @@ MESSAGE will be shown when notifying in the status bar."
   (let* ((start (line-beginning-position))
          (alarm (get-text-property start 'alarm-clock))
          (inhibit-read-only t))
-  (unless alarm
-    (user-error "No alarm clock on the current line"))
-  (forward-line 1)
-  (delete-region start (point))
-  (cancel-timer (plist-get alarm :timer))
-  (setq alarm-clock--alist (delq alarm alarm-clock--alist))))
+    (unless alarm
+      (user-error "No alarm clock on the current line"))
+    (forward-line 1)
+    (delete-region start (point))
+    (cancel-timer (plist-get alarm :timer))
+    (setq alarm-clock--alist (delq alarm alarm-clock--alist))))
 
 (defun alarm-clock--cleanup ()
   "Remove expired records."
   (dolist (alarm alarm-clock--alist)
     (when (time-less-p (plist-get alarm :time) (current-time))
-        (setq alarm-clock--alist (delq alarm alarm-clock--alist)))))
+      (setq alarm-clock--alist (delq alarm alarm-clock--alist)))))
 
 (defun alarm-clock--ding ()
   "Play ding.
@@ -140,7 +143,7 @@ and 'mpg123' in linux"
         (sound (expand-file-name alarm-clock-sound-file)))
     (when (and (executable-find program)
                (file-exists-p sound))
-        (start-process title nil program sound))))
+      (start-process title nil program sound))))
 
 (defun alarm-clock--system-notify (title message)
   "Notify with formatted TITLE and MESSAGE by the system notification feature."
@@ -158,7 +161,7 @@ and 'mpg123' in linux"
 (defun alarm-clock--notify (title message)
   "Notify in status bar with formatted TITLE and MESSAGE."
   (when alarm-clock-play-sound
-      (alarm-clock--ding))
+    (alarm-clock--ding))
   (when alarm-clock-system-notify
     (alarm-clock--system-notify title message))
   (message (format "[%s] - %s" title message)))
