@@ -4,8 +4,8 @@
 
 ;; Author: Steve Lemuel <wlemuel@hotmail.com>
 ;; Keywords: calendar, tools, convenience
-;; Version: 2018.11.21
-;; Package-Version: 20181121.1
+;; Version: 2019.01.28
+;; Package-Version: 20190128.1
 ;; Package-Requires: ((emacs "24.4") (f "0.17.0"))
 ;; URL: https://github.com/wlemuel/alarm-clock
 
@@ -33,6 +33,7 @@
 
 ;;; Code:
 
+(require 'parse-time)
 (require 'f)
 
 (defgroup alarm-clock nil
@@ -209,6 +210,7 @@ and 'mpg123' in linux"
 
 (defun alarm-clock--turn-autosave-on ()
   "Turn `alarm-clock-save' on."
+  (alarm-clock-restore)
   (add-hook 'kill-emacs-hook #'alarm-clock-save))
 
 (defun alarm-clock--turn-autosave-off ()

@@ -33,6 +33,23 @@ MESSAGE will be shown when notifying at setting time.
 Display the alarm clock list.  
 Use `a` to set a new alarm clock, `C-k` to delete current alarm clock.
 
+##### `alarm-clock-save`
+
+Save alarm-clock to cache file.
+
+##### `alarm-clock-restore`
+
+Restore alarm-clock from cache file.
+
+## Configurations
+
+#### Enable autosave-and-restore feature.
+- Change cache file path by setting the variable `alarm-clock-cache-file` to any file path you like.
+- Add these lines to your .emacs file:
+
+        (alarm-clock--turn-autosave-on)
+
+
 ## Q & A
 
 - Meet `(wrong-type-argument package-desc nil)` on Mac OSX.
