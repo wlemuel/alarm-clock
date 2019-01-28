@@ -56,6 +56,12 @@
   :type 'boolean
   :group 'alarm-clock)
 
+(defcustom alarm-clock-cache-file
+  (expand-file-name ".alarm-clock.cache" user-emacs-directory)
+  "The name of alarm-clock's cache file."
+  :type 'string
+  :group 'alarm-clock)
+
 (defvar alarm-clock--alist nil
   "List of information about alarm clock.")
 
@@ -74,7 +80,7 @@
   "Set an alarm clock at time TIME.
 MESSAGE will be shown when notifying in the status bar."
   (interactive "sAlarm at (e.g: 2 minutes, 60 seconds, 3 days): \nsMessage: ")
-  (let* ((time (string-trim time))
+  (let* ((time (if (stringp time) (string-trim time) time))
          (message (string-trim message))
          (timer (run-at-time
                  time
@@ -166,6 +172,48 @@ and 'mpg123' in linux"
     (alarm-clock--system-notify title message))
   (message (format "[%s] - %s" title message)))
 
+;;;###autoload
+(defun alarm-clock-restore ()
+  "Restore alarm clocks on startup."
+  (interactive)
+  (alarm-clock--kill-all)
+  (let* ((file alarm-clock-cache-file)
+        (alarm-clocks (unless (zerop (or (nth 7 (file-attributes file)) 0))
+                        (with-temp-buffer
+                          (insert-file-contents file)
+                          (read (current-buffer))))))
+    (when alarm-clocks
+      (dolist (alarm alarm-clocks)
+        (alarm-clock-set (parse-iso8601-time-string (plist-get alarm :time))
+                         (plist-get alarm :message))))))
+
+;;;###autoload
+(defun alarm-clock-save ()
+  "Save alarm clocks to local file."
+  (interactive)
+  (let ((alarm-clocks))
+    (dolist (alarm alarm-clock--alist)
+      (unless (time-less-p (plist-get alarm :time) (current-time))
+        (push (list :time (format-time-string "%FT%T%z" (plist-get alarm :time))
+                    :message (plist-get alarm :message))
+              alarm-clocks)))
+    (with-temp-file alarm-clock-cache-file
+      (insert ";; Auto-generated file; don't edit\n")
+      (pp alarm-clocks (current-buffer)))))
+
+(defun alarm-clock--kill-all ()
+  "Kill all timers."
+  (dolist (alarm alarm-clock--alist)
+    (cancel-timer (plist-get alarm :timer))
+    (setq alarm-clock--alist (delq alarm alarm-clock--alist))))
+
+(defun alarm-clock--turn-autosave-on ()
+  "Turn `alarm-clock-save' on."
+  (add-hook 'kill-emacs-hook #'alarm-clock-save))
+
+(defun alarm-clock--turn-autosave-off ()
+  "Turn `alarm-clock-save' off."
+  (remove-hook 'kill-emacs-hook #'alarm-clock-save))
 
 (provide 'alarm-clock)
 ;;; alarm-clock.el ends here
