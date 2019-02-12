@@ -4,8 +4,8 @@
 
 ;; Author: Steve Lemuel <wlemuel@hotmail.com>
 ;; Keywords: calendar, tools, convenience
-;; Version: 2019.01.28
-;; Package-Version: 20190128.1
+;; Version: 2019.02.12
+;; Package-Version: 20190212.1
 ;; Package-Requires: ((emacs "24.4") (f "0.17.0"))
 ;; URL: https://github.com/wlemuel/alarm-clock
 
