@@ -57,6 +57,16 @@
   :type 'boolean
   :group 'alarm-clock)
 
+(defcustom alarm-clock-snooze-enable nil
+  "Whether enable snooze feature."
+  :type 'boolean
+  :group 'alarm-clock)
+
+(defcustom alarm-clock-snooze-default-duration 300
+  "Default duration (5 minutes = 300 seconds) for snooze feature."
+  :type 'number
+  :group 'alarm-clock)
+
 (defcustom alarm-clock-cache-file
   (expand-file-name ".alarm-clock.cache" user-emacs-directory)
   "The name of alarm-clock's cache file."
@@ -98,27 +108,28 @@ MESSAGE will be shown when notifying in the status bar."
 (defun alarm-clock-list-view ()
   "Display the alarm clocks."
   (interactive)
+  (unless alarm-clock--alist
+    (user-error "No alarm clocks are set"))
   (alarm-clock--list-prepare)
   (pop-to-buffer "*alarm clock*"))
 
 (defun alarm-clock--list-prepare ()
   "Prefare the list buffer."
   (alarm-clock--cleanup)
-  (unless alarm-clock--alist
-    (user-error "No alarm clocks are set"))
-  (set-buffer (get-buffer-create "*alarm clock*"))
-  (alarm-clock-mode)
-  (let* ((format (format "%%-%ds %%s" 25))
-         (inhibit-read-only t)
-         start time)
-    (erase-buffer)
-    (setq header-line-format (format format "Time" "Message"))
-    (dolist (alarm alarm-clock--alist)
-      (setq start (point)
-            time (format-time-string "%F %X" (plist-get alarm :time)))
-      (insert (format format time (plist-get alarm :message)) "\n")
-      (put-text-property start (1+ start) 'alarm-clock alarm))
-    (goto-char (point-min))))
+  (when alarm-clock--alist
+    (set-buffer (get-buffer-create "*alarm clock*"))
+    (alarm-clock-mode)
+    (let* ((format (format "%%-%ds %%s" 25))
+           (inhibit-read-only t)
+           start time)
+      (erase-buffer)
+      (setq header-line-format (format format "Time" "Message"))
+      (dolist (alarm alarm-clock--alist)
+        (setq start (point)
+              time (format-time-string "%F %X" (plist-get alarm :time)))
+        (insert (format format time (plist-get alarm :message)) "\n")
+        (put-text-property start (1+ start) 'alarm-clock alarm))
+      (goto-char (point-min)))))
 
 (defun alarm-clock-kill ()
   "Kill the current alarm clock."
