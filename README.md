@@ -9,6 +9,7 @@ An alarm clock for Emacs
 
 - Emacs 24 or higher
 - [mpg123](http://mpg123.org) (gnu/linux)
+- [terminal-notifier](https://github.com/julienXX/terminal-notifier) (macOS)
 
 ## Get started
 
