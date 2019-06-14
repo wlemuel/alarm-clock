@@ -1,5 +1,6 @@
 # alarm-clock
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/029351143854448791f22177c8d53a44)](https://app.codacy.com/app/wlemuel/alarm-clock?utm_source=github.com&utm_medium=referral&utm_content=wlemuel/alarm-clock&utm_campaign=Badge_Grade_Dashboard)
 [![MELPA](https://melpa.org/packages/alarm-clock-badge.svg)](https://melpa.org/#/alarm-clock)
 [![License](http://img.shields.io/:license-gpl3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
 
