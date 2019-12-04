@@ -171,9 +171,9 @@ and 'mpg123' in linux"
   (let ((program (cond ((eq system-type 'darwin) "terminal-notifier")
                        ((eq system-type 'gnu/linux) "notify-send")
                        (t "")))
-        (args (cond ((eq system-type 'darwin) `("-title" title
+        (args (cond ((eq system-type 'darwin) `("-title" ,title
                                                 ,@(alarm-clock--get-macos-sender)
-                                                "-message" message
+                                                "-message" ,message
                                                 "-ignoreDnD"))
                     ((eq system-type 'gnu/linux) (list "-u" "critical" title message)))))
     (when (executable-find program)
