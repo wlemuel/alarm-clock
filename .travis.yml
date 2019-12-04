@@ -11,8 +11,7 @@ env:
 before_install:
   - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > travis.sh && source ./travis.sh
   - evm install $EVM_EMACS --use --skip
-install:
-  - cask install --verbose
+  - cask
 
 script:
   - emacs --version
