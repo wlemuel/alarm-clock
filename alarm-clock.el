@@ -76,6 +76,9 @@
 (defvar alarm-clock--alist nil
   "List of information about alarm clock.")
 
+(defvar alarm-clock--macos-sender nil
+  "Notification sender for MacOS.")
+
 (define-derived-mode alarm-clock-mode special-mode "Alarm Clock"
   "Mode for listing alarm-clocks.
 
@@ -168,10 +171,10 @@ and 'mpg123' in linux"
   (let ((program (cond ((eq system-type 'darwin) "terminal-notifier")
                        ((eq system-type 'gnu/linux) "notify-send")
                        (t "")))
-        (args (cond ((eq system-type 'darwin) (list "-title" title
-                                                    "-sender" "org.gnu.Emacs"
-                                                    "-message" message
-                                                    "-ignoreDnD"))
+        (args (cond ((eq system-type 'darwin) `("-title" title
+                                                ,@(alarm-clock--get-macos-sender)
+                                                "-message" message
+                                                "-ignoreDnD"))
                     ((eq system-type 'gnu/linux) (list "-u" "critical" title message)))))
     (when (executable-find program)
       (apply 'start-process (append (list title nil program) args)))))
@@ -227,6 +230,19 @@ and 'mpg123' in linux"
 (defun alarm-clock--turn-autosave-off ()
   "Turn `alarm-clock-save' off."
   (remove-hook 'kill-emacs-hook #'alarm-clock-save))
+
+(defun alarm-clock--get-macos-sender ()
+  "Get proper sender for notifying in MacOS"
+  (when (not alarm-clock--macos-sender)
+    (let* ((versions (split-string
+                      (shell-command-to-string "sw_vers -productVersion")
+                      "\\." t))
+           (major-version (string-to-number (first versions)))
+           (minor-version (string-to-number (second versions))))
+      (unless (and (>= major-version 10)
+                   (>= minor-version 15))
+        (setq alarm-clock--macos-sender '("-sender" "org.gnu.Emacs")))))
+  alarm-clock--macos-sender)
 
 (provide 'alarm-clock)
 ;;; alarm-clock.el ends here
