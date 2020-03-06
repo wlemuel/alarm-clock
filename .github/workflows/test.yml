@@ -1,6 +1,15 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    paths-ignore:
+      - '**.mp3'
+      - '**.md'
+      - '**.org'
+      - '.dir-locals.el'
+    branches:
+      - master
 
 jobs:
   build:
@@ -8,15 +17,29 @@ jobs:
     strategy:
       matrix:
         emacs_version:
-          - 25.1
-          - 25.3
-          - 26.1
-          - 26.3
-          - snapshot
+          - '25.1'
+          - '25.3'
+          - '26.1'
+          - '26.3'
+          - 'snapshot'
+        cask_version:
+          - '0.8.0'
+          - '0.8.4'
+          - 'snapshot'
     steps:
-    - uses: purcell/setup-emacs@master
-      with:
-        version: ${{ matrix.emacs_version }}
-    - uses: actions/checkout@v1
-    - name: Byte compile
-      run: 'emacs -Q --batch --eval "(setq byte-compile-error-on-warn t)" -f batch-byte-compile alarm-clock.el'
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1.1.1
+        with:
+          python-version: '3.6'
+          architecture: 'x64'
+
+      - uses: purcell/setup-emacs@master
+        with:
+          version: ${{ matrix.emacs_version }}
+
+      - uses: conao3/setup-cask@master
+        with:
+          version: 'snapshot'
+
+      - name: lint with cask
+        run: cask build
