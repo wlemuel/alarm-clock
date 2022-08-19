@@ -237,8 +237,8 @@ and 'mpg123' in linux"
     (let* ((versions (split-string
                       (shell-command-to-string "sw_vers -productVersion")
                       "\\." t))
-           (major-version (string-to-number (first versions)))
-           (minor-version (string-to-number (second versions))))
+           (major-version (string-to-number (car versions)))
+           (minor-version (string-to-number (cadr versions))))
       (unless (and (>= major-version 10)
                    (>= minor-version 15))
         (setq alarm-clock--macos-sender '("-sender" "org.gnu.Emacs")))))
