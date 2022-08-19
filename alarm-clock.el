@@ -193,10 +193,10 @@ and 'mpg123' in linux"
   (interactive)
   (alarm-clock--kill-all)
   (let* ((file alarm-clock-cache-file)
-        (alarm-clocks (unless (zerop (or (nth 7 (file-attributes file)) 0))
-                        (with-temp-buffer
-                          (insert-file-contents file)
-                          (read (current-buffer))))))
+         (alarm-clocks (unless (zerop (or (nth 7 (file-attributes file)) 0))
+                         (with-temp-buffer
+                           (insert-file-contents file)
+                           (read (current-buffer))))))
     (when alarm-clocks
       (dolist (alarm alarm-clocks)
         (alarm-clock-set (parse-iso8601-time-string (plist-get alarm :time))
