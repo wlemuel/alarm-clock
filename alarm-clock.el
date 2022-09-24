@@ -1,12 +1,12 @@
 ;;; alarm-clock.el --- Alarm Clock                   -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018  Steve Lemuel
+;; Copyright (C) 2018-2022  Steve Lemuel
 
 ;; Author: Steve Lemuel <wlemuel@hotmail.com>
 ;; Keywords: calendar, tools, convenience
 ;; Version: 2019.02.12
 ;; Package-Version: 20190212.1
-;; Package-Requires: ((emacs "24.4") (f "0.17.0"))
+;; Package-Requires: ((emacs "24.4"))
 ;; URL: https://github.com/wlemuel/alarm-clock
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,6 @@
 ;;; Code:
 
 (require 'parse-time)
-(require 'f)
 
 (defgroup alarm-clock nil
   "An alarm clock management."
@@ -42,7 +41,9 @@
   :prefix "alarm-clock-")
 
 (defcustom alarm-clock-sound-file
-  (f-join (f-dirname (f-this-file)) "alarm.mp3")
+  (concat
+   (file-name-directory (or load-file-name buffer-file-name))
+   "alarm.mp3")
   "File to play the alarm sound."
   :type 'file
   :group 'alarm-clock)
