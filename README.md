@@ -10,7 +10,6 @@ Derived from [wlemuel/alarm-clock](https://github.com/wlemuel/alarm-clock).
 ## Requirements
 
 -   Emacs 24 or higher
--   [f](https://stable.melpa.org/#/f) file library; install with `(package-install 'f)
 -   [mpg123](http://mpg123.org) (gnu/linux)
 -   [terminal-notifier](https://github.com/julienXX/terminal-notifier) (macOS)
 -   [notify-send](https://manpages.debian.org/stretch/libnotify-bin/notify-send.1.en.html) (gnu/linux)
