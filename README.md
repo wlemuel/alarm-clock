@@ -52,8 +52,7 @@ Restore alarm-clock from cache file.
 ## Enhancements
 
 This fork of
-[wlemuel/alarm-clock](https://github.com/wlemuel/alarm-clock) add these
-features:
+[wlemuel/alarm-clock](https://github.com/wlemuel/alarm-clock) adds these features:
 
 -   Allow repeating the alarm clock sound multiple times,
     asynchornously, or until stopped via M-x alarm-clock-stop
@@ -61,12 +60,12 @@ features:
 -   Allow alarm-clock-list-view to work even if there are no alarms,
     to allow using `a` to create a new one or SPACE to stop a ringing
     alarm.
--   Show time remaining until the alarm fires in the alarm list view.
-    Press `g` to refresh (and update the time remaining).
+-   Show time remaining until the alarm fires in the alarm list view. Press `g` to refresh.
 -   Aligned the header-line-format with content
 -   New customization variables in the `alarm-clock` group:
     - `alarm-clock-play-sound-repeat`: Number of times to repeat the
-      sound when an alarm rings. Use M-x alarm-clock-stop to quiet the alarm.
+      sound when an alarm rings. Default is 1. Use M-x alarm-clock-stop
+      to stop ringing the alarm.
     - `alarm-clock-play-auto-view-alarms`: If non-nil, display the alarm
     clock list when ringing an alarm, to allow using SPACE to run alarm-clock-stop
 
