@@ -1,6 +1,6 @@
 ;;; alarm-clock.el --- Alarm Clock                   -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018-2022  Steve Lemuel
+;; Copyright (C) 2018-2022 Steve Lemuel
 
 ;; Author: Steve Lemuel <wlemuel@hotmail.com>
 ;; Keywords: calendar, tools, convenience
@@ -53,19 +53,19 @@
   :type 'boolean
   :group 'alarm-clock)
 
+(defcustom alarm-clock-play-sound-repeat 1
+  "Number of times to repeat the sound when an alarm rings. Use M-x alarm-clock-stop to quiet the alarm."
+  :type 'integer
+  :group 'alarm-clock)
+
+(defcustom alarm-clock-play-auto-view-alarms nil
+  "If non-nul, display the alarm clock list when ringing an alarm, to allow using SPACE to run alarm-clock-stop"
+  :type 'boolean
+  :group 'alarm-clock)
+
 (defcustom alarm-clock-system-notify t
   "Whether to notify via system based notification feature."
   :type 'boolean
-  :group 'alarm-clock)
-
-(defcustom alarm-clock-snooze-enable nil
-  "Whether enable snooze feature."
-  :type 'boolean
-  :group 'alarm-clock)
-
-(defcustom alarm-clock-snooze-default-duration 300
-  "Default duration (5 minutes = 300 seconds) for snooze feature."
-  :type 'number
   :group 'alarm-clock)
 
 (defcustom alarm-clock-cache-file
@@ -80,6 +80,9 @@
 (defvar alarm-clock--macos-sender nil
   "Notification sender for MacOS.")
 
+(defvar alarm-clock--stopped nil
+  "If true, stop sounding the alarm. Set to t by M-x alarm-clock-stop or pressing SPACE in alarm-clock-list-view window")
+
 (define-derived-mode alarm-clock-mode special-mode "Alarm Clock"
   "Mode for listing alarm-clocks.
 
@@ -88,7 +91,11 @@
   (setq truncate-lines t)
 
   (define-key alarm-clock-mode-map [(control k)] 'alarm-clock-kill)
-  (define-key alarm-clock-mode-map "a" 'alarm-clock-set))
+  (define-key alarm-clock-mode-map "d" 'alarm-clock-kill)
+  (define-key alarm-clock-mode-map "a" 'alarm-clock-set)
+  (define-key alarm-clock-mode-map "g" 'alarm-clock-list-view)
+  (define-key alarm-clock-mode-map " " 'alarm-clock-stop)
+  )
 
 ;;;###autoload
 (defun alarm-clock-set (time message)
@@ -112,28 +119,38 @@ MESSAGE will be shown when notifying in the status bar."
 (defun alarm-clock-list-view ()
   "Display the alarm clocks."
   (interactive)
-  (unless alarm-clock--alist
-    (user-error "No alarm clocks are set"))
+  ;;(unless alarm-clock--alist
+  ;; (user-error "No alarm clocks are set"))
   (alarm-clock--list-prepare)
   (pop-to-buffer "*alarm clock*"))
 
 (defun alarm-clock--list-prepare ()
   "Prefare the list buffer."
   (alarm-clock--cleanup)
-  (when alarm-clock--alist
-    (set-buffer (get-buffer-create "*alarm clock*"))
-    (alarm-clock-mode)
-    (let* ((format (format "%%-%ds %%s" 25))
-           (inhibit-read-only t)
-           start time)
-      (erase-buffer)
-      (setq header-line-format (format format "Time" "Message"))
-      (dolist (alarm alarm-clock--alist)
-        (setq start (point)
-              time (format-time-string "%F %X" (plist-get alarm :time)))
-        (insert (format format time (plist-get alarm :message)) "\n")
+  (set-buffer (get-buffer-create "*alarm clock*"))
+  (alarm-clock-mode)
+  (let* ((format "%-20s %-12s   %s")
+         (inhibit-read-only t) )
+    (erase-buffer)
+    (setq header-line-format (format format " Time" " Remaining" " Message  (Press SPACE to stop a ringing alarm)"))
+    (dolist (alarm alarm-clock--alist)
+      (let* ((alarm-time (plist-get alarm :time))
+             (alarm-message (plist-get alarm :message))
+             ;; I think alarms are removed from the list when they fire, so no negative remaining values
+             (remaining (format-time-string "%H:%2M:%2S" (time-subtract alarm-time nil) 0) )
+             (start (point))
+             (time (format-time-string "%F %X" alarm-time)))
+        (insert (format format time remaining alarm-message) "\n")
         (put-text-property start (1+ start) 'alarm-clock alarm))
       (goto-char (point-min)))))
+
+;;;###autoload
+(defun alarm-clock-stop ()
+  "Stop sounding the current alarm."
+  (interactive)
+  (setq alarm-clock--stopped t)
+  (message "Alarm stopped.")
+  )
 
 (defun alarm-clock-kill ()
   "Kill the current alarm clock."
@@ -154,18 +171,34 @@ MESSAGE will be shown when notifying in the status bar."
     (when (time-less-p (plist-get alarm :time) (current-time))
       (setq alarm-clock--alist (delq alarm alarm-clock--alist)))))
 
-(defun alarm-clock--ding ()
+(defun alarm-clock--ding-on-timer (program sound repeat) ;; (alarm-clock--ding)
+  "Play the alarm sound asynchronously until stopped"
+  ;; (message "(alarm-clock--ding-on-timer %s %s %d)" program sound repeat)
+  (when (and (not alarm-clock--stopped)
+             (> repeat 0))
+    (start-process "Alarm Clock" nil program sound)
+    (run-at-time 2
+                 nil
+                 (lambda (repeat) (alarm-clock--ding-on-timer program sound repeat))
+                 (- repeat 1)
+                 )))
+
+(defun alarm-clock--ding () ;; (alarm-clock--ding)
   "Play ding.
 In osx operating system, 'afplay' will be used to play sound,
 and 'mpg123' in linux"
-  (let ((title "Alarm Clock")
-        (program (cond ((eq system-type 'darwin) "afplay")
+  (let ((program (cond ((eq system-type 'darwin) "afplay")
                        ((eq system-type 'gnu/linux) "mpg123")
                        (t "")))
         (sound (expand-file-name alarm-clock-sound-file)))
     (when (and (executable-find program)
                (file-exists-p sound))
-      (start-process title nil program sound))))
+      (setq alarm-clock--stopped nil)
+      (run-at-time
+       "0"
+       nil
+       (lambda (repeat) (alarm-clock--ding-on-timer program sound repeat))
+       alarm-clock-play-sound-repeat))))
 
 (defun alarm-clock--system-notify (title message)
   "Notify with formatted TITLE and MESSAGE by the system notification feature."
@@ -182,6 +215,8 @@ and 'mpg123' in linux"
 
 (defun alarm-clock--notify (title message)
   "Notify in status bar with formatted TITLE and MESSAGE."
+  (and alarm-clock-play-auto-view-alarms
+       (alarm-clock-list-view))
   (when alarm-clock-play-sound
     (alarm-clock--ding))
   (when alarm-clock-system-notify
