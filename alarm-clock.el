@@ -93,6 +93,7 @@
   (define-key alarm-clock-mode-map [(control k)] 'alarm-clock-kill)
   (define-key alarm-clock-mode-map "d" 'alarm-clock-kill)
   (define-key alarm-clock-mode-map "a" 'alarm-clock-set)
+  (define-key alarm-clock-mode-map "i" 'alarm-clock-set)
   (define-key alarm-clock-mode-map "g" 'alarm-clock-list-view)
   (define-key alarm-clock-mode-map " " 'alarm-clock-stop)
   )
@@ -124,6 +125,13 @@ MESSAGE will be shown when notifying in the status bar."
   (alarm-clock--list-prepare)
   (pop-to-buffer "*alarm clock*"))
 
+(defun alarm-clock--sort-list ()
+  "Sort the alarm in increasing time"
+  (sort alarm-clock--alist (lambda (a b)
+                             (let* ((time-a (plist-get a :time))
+                                    (time-b (plist-get b :time)))
+                               (time-less-p time-b time-a)))))
+
 (defun alarm-clock--list-prepare ()
   "Prefare the list buffer."
   (alarm-clock--cleanup)
@@ -133,7 +141,7 @@ MESSAGE will be shown when notifying in the status bar."
          (inhibit-read-only t) )
     (erase-buffer)
     (setq header-line-format (format format " Time" " Remaining" " Message  (Press SPACE to stop a ringing alarm)"))
-    (dolist (alarm alarm-clock--alist)
+    (dolist (alarm (alarm-clock--sort-list))
       (let* ((alarm-time (plist-get alarm :time))
              (alarm-message (plist-get alarm :message))
              ;; I think alarms are removed from the list when they fire, so no negative remaining values

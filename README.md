@@ -62,6 +62,7 @@ This fork of
     alarm.
 -   Show time remaining until the alarm fires in the alarm list view. Press `g` to refresh.
 -   Aligned the header-line-format with content
+-   Sort alarms by time in alarm-clock-list-view
 -   New customization variables in the `alarm-clock` group:
     - `alarm-clock-play-sound-repeat`: Number of times to repeat the
       sound when an alarm rings. Default is 1. Use M-x alarm-clock-stop
