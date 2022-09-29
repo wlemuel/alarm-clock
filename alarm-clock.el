@@ -142,7 +142,7 @@ MESSAGE will be shown when notifying in the status bar."
   (let* ((format "%-20s %-12s   %s")
          (inhibit-read-only t) )
     (erase-buffer)
-    (setq header-line-format (format format " Time" " Remaining" " Message  (Press SPACE to stop a ringing alarm)"))
+    (setq header-line-format (format format " Time" " Remaining" " Message"))
     (dolist (alarm (alarm-clock--sort-list))
       (let* ((alarm-time (plist-get alarm :time))
              (alarm-message (plist-get alarm :message))
