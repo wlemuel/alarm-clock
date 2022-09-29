@@ -94,6 +94,8 @@
   (define-key alarm-clock-mode-map "d" 'alarm-clock-kill)
   (define-key alarm-clock-mode-map "a" 'alarm-clock-set)
   (define-key alarm-clock-mode-map "i" 'alarm-clock-set)
+  (define-key alarm-clock-mode-map "+" 'alarm-clock-set)
+  (define-key alarm-clock-mode-map "-" 'alarm-clock-delete)
   (define-key alarm-clock-mode-map "g" 'alarm-clock-list-view)
   (define-key alarm-clock-mode-map " " 'alarm-clock-stop)
   )

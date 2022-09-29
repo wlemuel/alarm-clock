@@ -58,11 +58,12 @@ This fork of
     asynchornously, or until stopped via M-x alarm-clock-stop
     or by pressing the SPACE key in the alarm list window.
 -   Allow alarm-clock-list-view to work even if there are no alarms,
-    to allow using `a` to create a new one or SPACE to stop a ringing
-    alarm.
+-   Bind `i` and `+` to alarm-clock-set
+-   Bind `-` to alarm-clock-delete
+-   Bind SPACE to stop alarm-clock-stop
 -   Show time remaining until the alarm fires in the alarm list view. Press `g` to refresh.
 -   Aligned the header-line-format with content
--   Sort alarms by time in alarm-clock-list-view
+-   Sort alarms by increasing time (earliest first) in alarm-clock-list-view
 -   New customization variables in the `alarm-clock` group:
     - `alarm-clock-play-sound-repeat`: Number of times to repeat the
       sound when an alarm rings. Default is 1. Use M-x alarm-clock-stop
