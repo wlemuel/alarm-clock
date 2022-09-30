@@ -74,6 +74,11 @@
   :type 'string
   :group 'alarm-clock)
 
+(defcustom alarm-clock-auto-save t
+  "If true, auto-save alarm clocks when adding or removing alarms or after alarm timeout."
+  :type 'boolean
+  :group 'alarm-clock)
+
 (defvar alarm-clock--alist nil
   "List of information about alarm clock.")
 
@@ -95,7 +100,7 @@
   (define-key alarm-clock-mode-map "a" 'alarm-clock-set)
   (define-key alarm-clock-mode-map "i" 'alarm-clock-set)
   (define-key alarm-clock-mode-map "+" 'alarm-clock-set)
-  (define-key alarm-clock-mode-map "-" 'alarm-clock-delete)
+  (define-key alarm-clock-mode-map "-" 'alarm-clock-kill)
   (define-key alarm-clock-mode-map "g" 'alarm-clock-list-view)
   (define-key alarm-clock-mode-map " " 'alarm-clock-stop)
   )
@@ -116,7 +121,13 @@ MESSAGE will be shown when notifying in the status bar."
                 :message message
                 :timer timer)
           alarm-clock--alist))
-  (alarm-clock--list-prepare))
+  (alarm-clock--list-prepare)
+  (alarm-clock--maybe-auto-save))
+
+(defun alarm-clock--maybe-auto-save ()
+  "If alarm-clock-auto-save is true, save alarms to alarm-clock-cache-file"
+  (and alarm-clock-auto-save
+       (alarm-clock-save)))
 
 ;;;###autoload
 (defun alarm-clock-list-view ()
@@ -173,13 +184,15 @@ MESSAGE will be shown when notifying in the status bar."
     (forward-line 1)
     (delete-region start (point))
     (cancel-timer (plist-get alarm :timer))
-    (setq alarm-clock--alist (delq alarm alarm-clock--alist))))
+    (setq alarm-clock--alist (delq alarm alarm-clock--alist))
+    (alarm-clock--maybe-auto-save)))
 
 (defun alarm-clock--cleanup ()
   "Remove expired records."
-  (dolist (alarm alarm-clock--alist)
-    (when (time-less-p (plist-get alarm :time) (current-time))
-      (setq alarm-clock--alist (delq alarm alarm-clock--alist)))))
+  (setq alarm-clock--alist (seq-filter (lambda (alarm)
+                                         (time-less-p (current-time) (plist-get alarm :time)))
+                                       alarm-clock--alist))
+  (alarm-clock--maybe-auto-save))
 
 (defun alarm-clock--ding-on-timer (program sound repeat) ;; (alarm-clock--ding)
   "Play the alarm sound asynchronously until stopped"
@@ -231,6 +244,7 @@ and 'mpg123' in linux"
     (alarm-clock--ding))
   (when alarm-clock-system-notify
     (alarm-clock--system-notify title message))
+  (alarm-clock--maybe-auto-save)
   (message (format "[%s] - %s" title message)))
 
 ;;;###autoload
