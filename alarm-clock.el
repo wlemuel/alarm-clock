@@ -269,7 +269,7 @@ and 'mpg123' in linux"
 (defun alarm-clock-save ()
   "Save alarm clocks to the alarm clock cache file."
   (interactive)
-  (let ((alarm-clocks (maplist (lambda (alarm) (list :time (format-time-string "%FT%T%z" (plist-get alarm :time))
+  (let ((alarm-clocks (seq-map (lambda (alarm) (list :time (format-time-string "%FT%T%z" (plist-get alarm :time))
                                                      :message (plist-get alarm :message)))
                                (alarm-clock--unexpired-alarms))))
     (with-current-buffer (find-file-noselect alarm-clock-cache-file)
