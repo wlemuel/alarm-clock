@@ -109,7 +109,7 @@
 (defun alarm-clock-set (time message)
   "Set an alarm clock at time TIME.
 MESSAGE will be shown when notifying in the status bar."
-  (interactive "sAlarm at (e.g: 2 minutes, 60 seconds, 3 days): \nsMessage: ")
+  (interactive "sAlarm at (e.g: 10:00am, 2 minutes, 30 seconds): \nsMessage: ")
   (let* ((time (if (stringp time) (string-trim time) time))
          (message (string-trim message))
          (timer (run-at-time
@@ -187,12 +187,16 @@ MESSAGE will be shown when notifying in the status bar."
     (setq alarm-clock--alist (delq alarm alarm-clock--alist))
     (alarm-clock--maybe-auto-save)))
 
+(defun alarm-clock--unexpired-alarms ()
+  "Rerturn a list of unexpired alarms"
+  (let ((now (current-time)))
+    (seq-filter (lambda (alarm)
+                  (time-less-p now (plist-get alarm :time)))
+                alarm-clock--alist)))
+
 (defun alarm-clock--cleanup ()
   "Remove expired records."
-  (setq alarm-clock--alist (seq-filter (lambda (alarm)
-                                         (time-less-p (current-time) (plist-get alarm :time)))
-                                       alarm-clock--alist))
-  (alarm-clock--maybe-auto-save))
+  (setq alarm-clock--alist (alarm-clock--unexpired-alarms)))
 
 (defun alarm-clock--ding-on-timer (program sound repeat) ;; (alarm-clock--ding)
   "Play the alarm sound asynchronously until stopped"
@@ -244,7 +248,6 @@ and 'mpg123' in linux"
     (alarm-clock--ding))
   (when alarm-clock-system-notify
     (alarm-clock--system-notify title message))
-  (alarm-clock--maybe-auto-save)
   (message (format "[%s] - %s" title message)))
 
 ;;;###autoload
@@ -264,17 +267,17 @@ and 'mpg123' in linux"
 
 ;;;###autoload
 (defun alarm-clock-save ()
-  "Save alarm clocks to local file."
+  "Save alarm clocks to the alarm clock cache file."
   (interactive)
-  (let ((alarm-clocks))
-    (dolist (alarm alarm-clock--alist)
-      (unless (time-less-p (plist-get alarm :time) (current-time))
-        (push (list :time (format-time-string "%FT%T%z" (plist-get alarm :time))
-                    :message (plist-get alarm :message))
-              alarm-clocks)))
-    (with-temp-file alarm-clock-cache-file
+  (let ((alarm-clocks (maplist (lambda (alarm) (list :time (format-time-string "%FT%T%z" (plist-get alarm :time))
+                                                     :message (plist-get alarm :message)))
+                               (alarm-clock--unexpired-alarms))))
+    (with-current-buffer (find-file-noselect alarm-clock-cache-file)
+      (kill-region (point-min) (point-max))
       (insert ";; Auto-generated file; don't edit\n")
-      (pp alarm-clocks (current-buffer)))))
+      (pp alarm-clocks (current-buffer))
+      (save-buffer)
+      (kill-buffer (current-buffer)))))
 
 (defun alarm-clock--kill-all ()
   "Kill all timers."
@@ -282,13 +285,12 @@ and 'mpg123' in linux"
     (cancel-timer (plist-get alarm :timer))
     (setq alarm-clock--alist (delq alarm alarm-clock--alist))))
 
-(defun alarm-clock--turn-autosave-on ()
-  "Turn `alarm-clock-save' on."
-  (alarm-clock-restore)
+(defun alarm-clock-turn-autosave-on ()
+  "Enable saving the alarm when killing emacs"
   (add-hook 'kill-emacs-hook #'alarm-clock-save))
 
-(defun alarm-clock--turn-autosave-off ()
-  "Turn `alarm-clock-save' off."
+(defun alarm-clock-turn-autosave-off ()
+  "Disable auto-saving the alarm when killing emacs"
   (remove-hook 'kill-emacs-hook #'alarm-clock-save))
 
 (defun alarm-clock--get-macos-sender ()

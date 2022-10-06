@@ -70,6 +70,12 @@ This fork of
       to stop ringing the alarm.
     - `alarm-clock-play-auto-view-alarms`: If non-nil, display the alarm
     clock list when ringing an alarm, to allow using SPACE to run alarm-clock-stop
+-   Change alarm-clock-save to use find-file-noselect/save-buffer so that
+    we have ~ backups of the save file
+-   Added alarm-clock--unexpired-alarms
+-   Renamed from alarm-clock--turn-autosave-?? to alarm-clock-turn-autosave-??
+    since they need not be internal function.
+-   Improved doc strings on alarm-clock-turn-autosave-on / alarm-clock-turn-autosave-off
 
 ## Configurations
 
