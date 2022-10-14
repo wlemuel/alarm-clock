@@ -108,6 +108,15 @@
 ;;;###autoload
 (defun alarm-clock-set (time message)
   "Set an alarm clock at time TIME.
+MESSAGE will be shown when notifying at that time.
+Auto-save the alarms if alarm-clock-auto-save is true."
+  (interactive "sAlarm at (e.g: 10:00am, 2 minutes, 30 seconds): \nsMessage: ")
+  (alarm-clock--set time message)
+  (alarm-clock--list-prepare)
+  (alarm-clock--maybe-auto-save))
+
+(defun alarm-clock--set (time message)
+  "Set an alarm clock at time TIME.
 MESSAGE will be shown when notifying in the status bar."
   (interactive "sAlarm at (e.g: 10:00am, 2 minutes, 30 seconds): \nsMessage: ")
   (let* ((time (if (stringp time) (string-trim time) time))
@@ -120,9 +129,7 @@ MESSAGE will be shown when notifying in the status bar."
     (push (list :time (timer--time timer)
                 :message message
                 :timer timer)
-          alarm-clock--alist))
-  (alarm-clock--list-prepare)
-  (alarm-clock--maybe-auto-save))
+          alarm-clock--alist)))
 
 (defun alarm-clock--maybe-auto-save ()
   "If alarm-clock-auto-save is true, save alarms to alarm-clock-cache-file"
@@ -138,16 +145,19 @@ MESSAGE will be shown when notifying in the status bar."
   (alarm-clock--list-prepare)
   (pop-to-buffer "*alarm clock*"))
 
+(defun alarm-clock--compare (a b)
+  "Compare two alarms A and B by date-time"
+  (let ((time-a (plist-get a :time))
+        (time-b (plist-get b :time)))
+    (time-less-p time-b time-a)))
+
 (defun alarm-clock--sort-list ()
   "Sort the alarm in increasing time"
-  (sort alarm-clock--alist (lambda (a b)
-                             (let* ((time-a (plist-get a :time))
-                                    (time-b (plist-get b :time)))
-                               (time-less-p time-b time-a)))))
+  (setq alarm-clock--alist (sort alarm-clock--alist (function alarm-clock--compare))))
 
 (defun alarm-clock--list-prepare ()
   "Prefare the list buffer."
-  (alarm-clock--cleanup)
+  (alarm-clock--remove-expired)
   (set-buffer (get-buffer-create "*alarm clock*"))
   (alarm-clock-mode)
   (let* ((format "%-20s %-12s   %s")
@@ -194,9 +204,9 @@ MESSAGE will be shown when notifying in the status bar."
                   (time-less-p now (plist-get alarm :time)))
                 alarm-clock--alist)))
 
-(defun alarm-clock--cleanup ()
-  "Remove expired records."
-  (setq alarm-clock--alist (alarm-clock--unexpired-alarms)))
+(defun alarm-clock--remove-expired ()
+  "Remove expired alarms."
+  (setq alarm-clock--alist (alarm-clock--unexpired-alarms))) ;; (length (alarm-clock--unexpired-alarms))
 
 (defun alarm-clock--ding-on-timer (program sound repeat) ;; (alarm-clock--ding)
   "Play the alarm sound asynchronously until stopped"
@@ -262,28 +272,35 @@ and 'mpg123' in linux"
                            (read (current-buffer))))))
     (when alarm-clocks
       (dolist (alarm alarm-clocks)
-        (alarm-clock-set (parse-iso8601-time-string (plist-get alarm :time))
-                         (plist-get alarm :message))))))
+        ;; call non-interactive alarm clock set to avoid overwriting the alist
+        (alarm-clock--set (parse-iso8601-time-string (plist-get alarm :time))
+                          (plist-get alarm :message)))))
+  (alarm-clock-list-view))
+
+(defun alarm-clock--formatted-cache ()
+  "Return the cachable list of alarms"
+  ; (pp (alarm-clock--cache-formatted))
+  (seq-map (lambda (alarm) (list :time (format-time-string "%FT%T%z" (plist-get alarm :time))
+                                                     :message (plist-get alarm :message)))
+           (alarm-clock--unexpired-alarms)))
 
 ;;;###autoload
 (defun alarm-clock-save ()
   "Save alarm clocks to the alarm clock cache file."
   (interactive)
-  (let ((alarm-clocks (seq-map (lambda (alarm) (list :time (format-time-string "%FT%T%z" (plist-get alarm :time))
-                                                     :message (plist-get alarm :message)))
-                               (alarm-clock--unexpired-alarms))))
+  (let ((alarm-clocks (alarm-clock--formatted-cache)))
     (with-current-buffer (find-file-noselect alarm-clock-cache-file)
       (kill-region (point-min) (point-max))
       (insert ";; Auto-generated file; don't edit\n")
       (pp alarm-clocks (current-buffer))
-      (save-buffer)
+      (save-buffer) ; use save-buffer so we get a ~ backup file
       (kill-buffer (current-buffer)))))
 
 (defun alarm-clock--kill-all ()
   "Kill all timers."
   (dolist (alarm alarm-clock--alist)
-    (cancel-timer (plist-get alarm :timer))
-    (setq alarm-clock--alist (delq alarm alarm-clock--alist))))
+    (cancel-timer (plist-get alarm :timer)))
+  (setq alarm-clock--alist nil))
 
 (defun alarm-clock-turn-autosave-on ()
   "Enable saving the alarm when killing emacs"
