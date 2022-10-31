@@ -163,7 +163,7 @@ MESSAGE will be shown when notifying in the status bar."
   (let* ((format "%-20s %-12s   %s")
          (inhibit-read-only t) )
     (erase-buffer)
-    (setq header-line-format (format format " Time" " Remaining" " Message"))
+    (setq header-line-format (format format "Time" "Remaining" "Message"))
     (dolist (alarm (alarm-clock--sort-list))
       (let* ((alarm-time (plist-get alarm :time))
              (alarm-message (plist-get alarm :message))
@@ -220,7 +220,7 @@ MESSAGE will be shown when notifying in the status bar."
                  (- repeat 1)
                  )))
 
-(defun alarm-clock--ding () ;; (alarm-clock--ding)
+(defun alarm-clock--ding ()
   "Play ding.
 In osx operating system, 'afplay' will be used to play sound,
 and 'mpg123' in linux"
@@ -302,11 +302,15 @@ and 'mpg123' in linux"
     (cancel-timer (plist-get alarm :timer)))
   (setq alarm-clock--alist nil))
 
-(defun alarm-clock-turn-autosave-on ()
+(defalias 'alarm-clock-turn-autosave-on 'alarm-clock--turn-autosave-on)
+
+(defun alarm-clock--turn-autosave-on ()
   "Enable saving the alarm when killing emacs"
   (add-hook 'kill-emacs-hook #'alarm-clock-save))
 
-(defun alarm-clock-turn-autosave-off ()
+(defalias 'alarm-clock-turn-autosave-off 'alarm-clock--turn-autosave-off)
+
+(defun alarm-clock--turn-autosave-off ()
   "Disable auto-saving the alarm when killing emacs"
   (remove-hook 'kill-emacs-hook #'alarm-clock-save))
 

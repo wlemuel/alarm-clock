@@ -57,7 +57,7 @@ Restore alarm-clock from cache file.
 -   Change cache file path by setting the variable `alarm-clock-cache-file` to any file path you like.
 -   Add these lines to your `.emacs` file:
 
-          (alarm-clock--turn-autosave-on)
+          (alarm-clock-turn-autosave-on)
 
 ## Q & A
 
