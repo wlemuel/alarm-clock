@@ -118,7 +118,6 @@ Auto-save the alarms if alarm-clock-auto-save is true."
 (defun alarm-clock--set (time message)
   "Set an alarm clock at time TIME.
 MESSAGE will be shown when notifying in the status bar."
-  (interactive "sAlarm at (e.g: 10:00am, 2 minutes, 30 seconds): \nsMessage: ")
   (let* ((time (if (stringp time) (string-trim time) time))
          (message (string-trim message))
          (timer (run-at-time
