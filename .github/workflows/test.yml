@@ -4,12 +4,14 @@ on:
   pull_request:
   push:
     paths-ignore:
-      - '**.mp3'
-      - '**.md'
-      - '**.org'
-      - '.dir-locals.el'
+      - "**.mp3"
+      - "**.md"
+      - "**.org"
+      - ".dir-locals.el"
     branches:
       - master
+      - develop
+      - fix/*
 
 jobs:
   build:
@@ -17,22 +19,22 @@ jobs:
     strategy:
       matrix:
         emacs_version:
-          - '25.1'
-          - '25.3'
-          - '26.1'
-          - '26.3'
-          - '27.2'
-          - 'snapshot'
+          - "25.1"
+          - "25.3"
+          - "26.1"
+          - "26.3"
+          - "27.2"
+          - "28.1"
+          - "snapshot"
         cask_version:
-          - '0.8.0'
-          - '0.8.4'
-          - 'snapshot'
+          - "0.8.0"
+          - "0.8.4"
+          - "snapshot"
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.6'
-          architecture: 'x64'
+          python-version: "3.10"
 
       - uses: purcell/setup-emacs@master
         with:
@@ -40,7 +42,7 @@ jobs:
 
       - uses: conao3/setup-cask@master
         with:
-          version: 'snapshot'
+          version: "snapshot"
 
       - name: lint with cask
         run: cask build
