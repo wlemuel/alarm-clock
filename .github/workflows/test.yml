@@ -27,8 +27,6 @@ jobs:
           - "28.1"
           - "snapshot"
         cask_version:
-          - "0.8.0"
-          - "0.8.4"
           - "snapshot"
     steps:
       - uses: actions/checkout@v3
@@ -42,7 +40,7 @@ jobs:
 
       - uses: conao3/setup-cask@master
         with:
-          version: "snapshot"
+          version: ${{ matrix.cask_version }}
 
       - name: lint with cask
         run: cask build
