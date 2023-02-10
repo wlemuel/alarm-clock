@@ -118,7 +118,7 @@ Auto-save the alarms if alarm-clock-auto-save is true."
 (defun alarm-clock--set (time message)
   "Set an alarm clock at time TIME.
 MESSAGE will be shown when notifying in the status bar."
-  (let* ((time (if (stringp time) (string-trim time) time))
+  (let* ((time (alarm-clock--preparse-time time))
          (message (string-trim message))
          (timer (run-at-time
                  time
@@ -129,6 +129,23 @@ MESSAGE will be shown when notifying in the status bar."
                 :message message
                 :timer timer)
           alarm-clock--alist)))
+
+(defun alarm-clock--preparse-time (time)
+  "Clean up the time, if it is a string, strip out the spaces at both ends."
+  (when (stringp time)
+    (setq time (string-trim time))
+
+    ;; Handle time abbreviations like "2s 3m 4h 5h6m 7h8m9s", which is equivalent to
+    ;; "2 seconds, 3 minutes, 4 hours, 5 hours 6 minutes, 7 hours 8 minutes 9 seconds"
+    (when (string-match
+           (concat "^[1-9][0-9]*[smh]$\\|"
+                   "^[1-9][0-9]*[mh][1-9][0-9]*[sm]$\\|"
+                   "^[1-9][0-9]*h[1-9][0-9]*m[1-9][0-9]*s$")
+           time)
+      (setq time (string-replace "s" "second" time))
+      (setq time (string-replace "m" "minute" time))
+      (setq time (string-replace "h" "hour" time))))
+  time)
 
 (defun alarm-clock--maybe-auto-save ()
   "If alarm-clock-auto-save is true, save alarms to alarm-clock-cache-file"
@@ -278,9 +295,9 @@ and 'mpg123' in linux"
 
 (defun alarm-clock--formatted-cache ()
   "Return the cachable list of alarms"
-  ; (pp (alarm-clock--cache-formatted))
+  ;; (pp (alarm-clock--cache-formatted))
   (seq-map (lambda (alarm) (list :time (format-time-string "%FT%T%z" (plist-get alarm :time))
-                                                     :message (plist-get alarm :message)))
+                                 :message (plist-get alarm :message)))
            (alarm-clock--unexpired-alarms)))
 
 ;;;###autoload
