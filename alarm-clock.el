@@ -34,6 +34,7 @@
 ;;; Code:
 
 (require 'parse-time)
+(require 'alert)
 
 (defgroup alarm-clock nil
   "An alarm clock management."
@@ -64,6 +65,11 @@
   :group 'alarm-clock)
 
 (defcustom alarm-clock-system-notify t
+  "Whether to notify via system based notification feature."
+  :type 'boolean
+  :group 'alarm-clock)
+
+(defcustom alarm-clock-alert-notify t
   "Whether to notify via system based notification feature."
   :type 'boolean
   :group 'alarm-clock)
@@ -272,6 +278,8 @@ and 'mpg123' in linux"
        (alarm-clock-list-view))
   (when alarm-clock-play-sound
     (alarm-clock--ding))
+  (when alarm-clock-alert-notify
+    (alert message :title title))
   (when alarm-clock-system-notify
     (alarm-clock--system-notify title message))
   (message (format "[%s] - %s" title message)))
