@@ -34,7 +34,7 @@
 ;;; Code:
 
 (require 'parse-time)
-(require 'alert)
+(require 'alert nil t)
 
 (defgroup alarm-clock nil
   "An alarm clock management."
@@ -278,7 +278,7 @@ and 'mpg123' in linux"
        (alarm-clock-list-view))
   (when alarm-clock-play-sound
     (alarm-clock--ding))
-  (when alarm-clock-alert-notify
+  (when (and alarm-clock-alert-notify (fboundp 'alert))
     (alert message :title title))
   (when alarm-clock-system-notify
     (alarm-clock--system-notify title message))
