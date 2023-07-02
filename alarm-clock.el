@@ -245,9 +245,10 @@ MESSAGE will be shown when notifying in the status bar."
 (defun alarm-clock--ding ()
   "Play ding.
 In osx operating system, 'afplay' will be used to play sound,
-and 'mpg123' in linux"
+and 'mpg123' in linux or windows"
   (let ((program (cond ((eq system-type 'darwin) "afplay")
                        ((eq system-type 'gnu/linux) "mpg123")
+                       ((eq system-type 'windows-nt) "mpg123")
                        (t "")))
         (sound (expand-file-name alarm-clock-sound-file)))
     (when (and (executable-find program)
