@@ -43,7 +43,7 @@
 
 (defcustom alarm-clock-sound-file
   (concat
-   (file-name-directory (or load-file-name buffer-file-name))
+   (file-name-directory (locate-library "alarm-clock"))
    "alarm.mp3")
   "File to play the alarm sound."
   :type 'file
