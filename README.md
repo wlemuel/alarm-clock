@@ -9,7 +9,7 @@ An alarm clock for Emacs
 ## Requirements
 
 -   Emacs 24 or higher
--   [mpg123](http://mpg123.org) (gnu/linux & windows)
+-   [mpg123](http://mpg123.org) (gnu/linux, Cygwin and Windows)
 -   [terminal-notifier](https://github.com/julienXX/terminal-notifier) (macOS)
 -   [notify-send](https://manpages.debian.org/stretch/libnotify-bin/notify-send.1.en.html) (gnu/linux)
 

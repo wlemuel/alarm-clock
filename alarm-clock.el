@@ -249,6 +249,7 @@ and 'mpg123' in linux or windows"
   (let ((program (cond ((eq system-type 'darwin) "afplay")
                        ((eq system-type 'gnu/linux) "mpg123")
                        ((eq system-type 'windows-nt) "mpg123")
+                       ((eq system-type 'cygwin) "mpg123")
                        (t "")))
         (sound (expand-file-name alarm-clock-sound-file)))
     (when (and (executable-find program)
